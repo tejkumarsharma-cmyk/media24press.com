@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
+import { CalendarDays, Facebook, Linkedin, Mail, Twitter } from 'lucide-react'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
 import { fetchTaskPostBySlug, fetchTaskPosts } from '@/lib/task-data'
@@ -8,62 +10,144 @@ import { formatRichHtml, RichContent } from '@/components/shared/rich-content'
 
 export const TASK_DETAIL_PAGE_OVERRIDE_ENABLED = true
 
+function getPostImage(post?: { media?: Array<{ url?: string }>; content?: unknown } | null) {
+  const media = Array.isArray(post?.media) ? post.media : []
+  const mediaUrl = media.find((item) => typeof item?.url === 'string' && item.url)?.url
+  if (mediaUrl) return mediaUrl
+  const content = post?.content && typeof post.content === 'object' ? (post.content as Record<string, unknown>) : {}
+  if (Array.isArray(content.images) && typeof content.images[0] === 'string') return content.images[0]
+  if (typeof content.logo === 'string') return content.logo
+  return 'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1400&q=80'
+}
+
 export async function TaskDetailPageOverride({ slug }: { task: TaskKey; slug: string }) {
   const post = await fetchTaskPostBySlug('mediaDistribution', slug)
   if (!post) notFound()
-  const recent = (await fetchTaskPosts('mediaDistribution', 8, { fresh: true })).filter((item) => item.slug !== slug).slice(0, 5)
+
+  const recent = (await fetchTaskPosts('mediaDistribution', 8, { fresh: true }))
+    .filter((item) => item.slug !== slug)
+    .slice(0, 5)
   const content = (post.content || {}) as Record<string, unknown>
   const html = formatRichHtml((content.body as string) || post.summary || '', 'Post body will appear here.')
+  const shareUrl = encodeURIComponent(`https://media24press.com/updates/${post.slug}`)
+  const shareText = encodeURIComponent(post.title)
 
   return (
-    <div className="min-h-screen bg-white text-neutral-900">
+    <div className="min-h-screen media24-soft-gradient text-[#1d1340]">
       <NavbarShell />
-      <section className="bg-neutral-900 py-14 text-white">
-        <div className="mx-auto max-w-6xl px-4 text-center sm:px-6">
-          <h1 className="mx-auto max-w-5xl text-4xl font-black uppercase leading-tight tracking-[0.02em] sm:text-5xl">{post.title}</h1>
-          <div className="mt-5 flex items-center justify-center gap-3 text-sm text-neutral-300">
-            <Link href="/">Home</Link>
-            <span>›</span>
-            <span className="truncate">{post.title}</span>
+      <section className="bg-[#12073a] py-14 text-white">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/75">
+            {String((post.content as any)?.category || 'Press Release')}
+          </p>
+          <h1 className="mt-3 max-w-5xl text-4xl font-semibold leading-tight sm:text-5xl">{post.title}</h1>
+          <p className="mt-4 max-w-3xl text-base text-white/80">
+            {(post.summary || 'Official media announcement from the newsroom.').slice(0, 210)}
+          </p>
+          <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-white/75">
+            <span>By {post.authorName || 'Media24Press Editorial Desk'}</span>
+            <span className="inline-flex items-center gap-2">
+              <CalendarDays className="h-4 w-4" />
+              {new Date(post.publishedAt || Date.now()).toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </span>
           </div>
         </div>
       </section>
-      <main className="mx-auto grid max-w-6xl gap-12 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <article>
-          <div className="border border-[#f0dfd7] bg-[#faece7] px-6 py-5 text-sm text-neutral-600">
-            <span className="mr-3 inline-block bg-neutral-800 px-3 py-1 text-white">{new Date(post.publishedAt || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-            <span>by {post.authorName || 'Editorial Desk'}</span>
+
+      <main className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <article className="media24-card overflow-hidden p-3">
+          <div className="relative h-[360px] overflow-hidden rounded-2xl">
+            <Image src={getPostImage(post)} alt={post.title} fill className="object-cover" />
           </div>
-          <div className="prose prose-lg mt-10 max-w-none prose-headings:font-black prose-headings:uppercase prose-headings:tracking-[0.01em]">
-            <RichContent html={html} />
-          </div>
-          <div className="mt-12 grid gap-0 border border-neutral-200 md:grid-cols-2">
-            {recent.slice(0,2).map((item, index) => (
-              <Link key={item.id} href={`/updates/${item.slug}`} className="border-neutral-200 p-6 first:border-b md:first:border-b-0 md:first:border-r">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">{index === 0 ? 'Previous Post' : 'Next Post'}</p>
-                <p className="mt-3 text-lg leading-8 text-neutral-700">{item.title}</p>
-              </Link>
-            ))}
-          </div>
-        </article>
-        <aside className="space-y-6">
-          <div className="border border-neutral-200 p-6">
-            <div className="flex items-center gap-0">
-              <input className="h-12 flex-1 border border-neutral-200 px-4 text-sm outline-none" placeholder="Type here to search" />
-              <button className="flex h-12 w-12 items-center justify-center bg-neutral-800 text-white">Q</button>
+          <div className="p-4">
+            <div className="mb-6 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#6f58b5]">
+              <span className="rounded-full bg-[#f1e9ff] px-3 py-1">{String((content.category as string) || 'News')}</span>
+              <span className="rounded-full bg-[#f1e9ff] px-3 py-1">Media24Press</span>
+            </div>
+            <div className="prose prose-lg max-w-none prose-headings:text-[#28185f] prose-p:text-[#433875] prose-li:text-[#433875] prose-a:text-[#3b14a7]">
+              <RichContent html={html} />
             </div>
           </div>
-          <div className="border border-neutral-200 p-6">
-            <div className="space-y-5">
+        </article>
+
+        <aside className="space-y-6">
+          <div className="media24-card p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7f60cf]">Share Release</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <a
+                href={`https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-[#d7c7ff] bg-white px-3 py-2 text-xs font-semibold text-[#3b14a7] hover:bg-[#f3ecff]"
+              >
+                <Twitter className="h-4 w-4" />
+                Twitter
+              </a>
+              <a
+                href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-[#d7c7ff] bg-white px-3 py-2 text-xs font-semibold text-[#3b14a7] hover:bg-[#f3ecff]"
+              >
+                <Facebook className="h-4 w-4" />
+                Facebook
+              </a>
+              <a
+                href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-[#d7c7ff] bg-white px-3 py-2 text-xs font-semibold text-[#3b14a7] hover:bg-[#f3ecff]"
+              >
+                <Linkedin className="h-4 w-4" />
+                LinkedIn
+              </a>
+              <a
+                href={`mailto:?subject=${shareText}&body=${shareUrl}`}
+                className="inline-flex items-center gap-2 rounded-full border border-[#d7c7ff] bg-white px-3 py-2 text-xs font-semibold text-[#3b14a7] hover:bg-[#f3ecff]"
+              >
+                <Mail className="h-4 w-4" />
+                Email
+              </a>
+            </div>
+          </div>
+
+          <div className="media24-card p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7f60cf]">Related Articles</p>
+            <div className="mt-4 space-y-3">
               {recent.map((item) => (
-                <Link key={item.id} href={`/updates/${item.slug}`} className="block border-b border-neutral-200 pb-5 last:border-b-0 last:pb-0">
-                  <p className="text-base leading-7 text-neutral-700">{item.title}</p>
+                <Link key={item.id} href={`/updates/${item.slug}`} className="block rounded-xl border border-[#eadfff] bg-white p-3 hover:bg-[#faf7ff]">
+                  <p className="text-sm font-semibold text-[#28185f]">{item.title}</p>
+                  <p className="mt-1 text-xs text-[#6f58b5]">
+                    {new Date(item.publishedAt || Date.now()).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </p>
                 </Link>
               ))}
             </div>
           </div>
         </aside>
       </main>
+
+      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
+        <div className="media24-card p-6">
+          <h2 className="text-2xl font-semibold text-[#28185f]">More News From Media24Press</h2>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {recent.slice(0, 3).map((item) => (
+              <Link key={`bottom-${item.id}`} href={`/updates/${item.slug}`} className="rounded-2xl border border-[#eadfff] bg-white p-4 hover:bg-[#faf7ff]">
+                <p className="text-sm font-semibold text-[#28185f]">{item.title}</p>
+                <p className="mt-2 text-xs text-[#6f58b5]">{(item.summary || '').slice(0, 100)}...</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
       <Footer />
     </div>
   )

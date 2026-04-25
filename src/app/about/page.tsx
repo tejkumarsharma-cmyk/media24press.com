@@ -1,93 +1,84 @@
-import Link from "next/link";
-import { PageShell } from "@/components/shared/page-shell";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { mockTeamMembers } from "@/data/mock-data";
-import { SITE_CONFIG } from "@/lib/site-config";
-
-const highlights = [
-  { label: "Creators onboarded", value: "12k+" },
-  { label: "Bookmarks shared", value: "180k" },
-  { label: "Listings published", value: "8.6k" },
-];
+import Image from 'next/image'
+import Link from 'next/link'
+import { Footer } from '@/components/shared/footer'
+import { NavbarShell } from '@/components/shared/navbar-shell'
 
 const values = [
-  { title: "Curated by people", description: "We believe trusted recommendations beat endless feeds." },
-  { title: "Designed for focus", description: "Clear, calm UI helps you find the next best resource fast." },
-  { title: "Built to share", description: "Collections make collaboration and knowledge flow effortless." },
-];
+  {
+    title: 'Media-First Experience',
+    description: 'Every page is built around press release readability and distribution outcomes.',
+  },
+  {
+    title: 'Fast Publishing Workflow',
+    description: 'From draft to release, teams can move quickly without compromising quality.',
+  },
+  {
+    title: 'Trust and Visibility',
+    description: 'Our product design focuses on credibility, clarity, and broad audience reach.',
+  },
+]
 
 export default function AboutPage() {
   return (
-    <PageShell
-      title={`About ${SITE_CONFIG.name}`}
-      description={`${SITE_CONFIG.name} is a modern platform for creators, communities, and curated business discovery.`}
-      actions={
-        <>
-          <Button variant="outline" asChild>
-            <Link href="/team">Meet the Team</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/contact">Contact Us</Link>
-          </Button>
-        </>
-      }
-    >
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card className="border-border bg-card">
-          <CardContent className="space-y-4 p-6">
-            <Badge variant="secondary">Our Story</Badge>
-            <h2 className="text-2xl font-semibold text-foreground">
-              A single home for knowledge, discovery, and community.
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {SITE_CONFIG.name} brings together publishing, listings, and social bookmarking so teams can move faster
-              and keep their best resources close.
+    <div className="min-h-screen media24-soft-gradient text-[#1d1340]">
+      <NavbarShell />
+      <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+        <section className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-center">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7f60cf]">About Us</p>
+            <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">
+              Building better press release experiences for modern brands
+            </h1>
+            <p className="mt-5 max-w-xl text-sm leading-8 text-[#5f518c]">
+              Media24Press helps teams publish and distribute announcements with confidence. We combine clean editorial design, practical workflow, and scalable distribution support.
             </p>
-            <div className="grid gap-4 sm:grid-cols-3">
-              {highlights.map((item) => (
-                <div key={item.label} className="rounded-lg border border-border bg-secondary/40 p-4">
-                  <div className="text-2xl font-semibold text-foreground">{item.value}</div>
-                  <div className="text-xs text-muted-foreground">{item.label}</div>
-                </div>
-              ))}
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link href="/pricing" className="rounded-full bg-[#3b14a7] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#5321d0]">
+                View Pricing
+              </Link>
+              <Link href="/contact" className="rounded-full border border-[#d5c2ff] px-5 py-2.5 text-sm font-semibold text-[#3b14a7] hover:bg-[#f3ecff]">
+                Contact Team
+              </Link>
             </div>
-          </CardContent>
-        </Card>
-        <div className="space-y-4">
-          {values.map((value) => (
-            <Card key={value.title} className="border-border bg-card">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-foreground">{value.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{value.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+          </div>
+          <div className="media24-card relative h-[360px] overflow-hidden p-3">
+            <Image
+              src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1400&q=80"
+              alt="Editorial and media team collaborating"
+              fill
+              className="rounded-2xl object-cover"
+            />
+          </div>
+        </section>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
-        {mockTeamMembers.map((member) => (
-          <Card key={member.id} className="border-border bg-card transition-transform hover:-translate-y-1">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={member.avatar} alt={member.name} />
-                  <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{member.name}</p>
-                  <p className="text-xs text-muted-foreground">{member.role}</p>
-                </div>
-              </div>
-              <p className="mt-3 text-sm text-muted-foreground">{member.bio}</p>
-              <p className="mt-3 text-xs text-muted-foreground">{member.location}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </PageShell>
-  );
+        <section className="mt-10 grid gap-6 md:grid-cols-3">
+          {values.map((item) => (
+            <article key={item.title} className="media24-card p-6">
+              <h2 className="text-xl font-semibold text-[#28185f]">{item.title}</h2>
+              <p className="mt-3 text-sm leading-7 text-[#5f518c]">{item.description}</p>
+            </article>
+          ))}
+        </section>
+
+        <section className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="media24-card p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7f60cf]">Our Mission</p>
+            <p className="mt-4 text-sm leading-8 text-[#4f437d]">
+              We believe every announcement deserves a strong platform. Our mission is to make press release publishing easier, faster, and more credible for teams of every size.
+            </p>
+          </div>
+          <div className="media24-card p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7f60cf]">What We Build</p>
+            <ul className="mt-4 space-y-2 text-sm leading-7 text-[#4f437d]">
+              <li>- Distribution-ready publishing pages</li>
+              <li>- Searchable latest news archive</li>
+              <li>- Structured pricing and onboarding surfaces</li>
+              <li>- Share-friendly single press release layouts</li>
+            </ul>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  )
 }

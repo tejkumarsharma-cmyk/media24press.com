@@ -4,6 +4,6 @@ import { buildTaskMetadata } from '@/lib/seo'
 export const revalidate = 3
 export const generateMetadata = () => buildTaskMetadata('mediaDistribution')
 
-export default function UpdatesPage({ searchParams }: { searchParams?: { category?: string; q?: string; date?: string } }) {
+export default function LatestNewsPage({ searchParams }: { searchParams?: { category?: string; q?: string; date?: string } }) {
   return <TaskListPage task="mediaDistribution" category={searchParams?.category} query={searchParams?.q} date={searchParams?.date} />
 }
