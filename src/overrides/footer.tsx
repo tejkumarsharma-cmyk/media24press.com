@@ -27,7 +27,7 @@ export function FooterOverride() {
             <div className="mt-4 grid gap-2 text-sm text-white/80">
               <Link href="/about" className="hover:text-white">About Us</Link>
               <Link href="/contact" className="hover:text-white">Contact</Link>
-              <Link href="/blog" className="hover:text-white">Blog</Link>
+
             </div>
           </div>
           <div>
